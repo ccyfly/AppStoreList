@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">AppStoreList</string>
+    <string name="recommend">Recommend</string>
+    <string name="search_hint" >Search</string>
+
+    <string name="error_network_fail" >Network error: fail to connect server. Use local data instead</string>
+    <string name="error_no_data">No data found</string>
+</resources>
