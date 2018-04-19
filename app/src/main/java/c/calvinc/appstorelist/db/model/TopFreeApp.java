@@ -11,6 +11,7 @@ public class TopFreeApp {
     public int id;
 
     public String appId;
+    public String bundleId;
 
     public String name;
     public String title;
@@ -26,8 +27,10 @@ public class TopFreeApp {
     public double price;
     public String currency;
 
-    public TopFreeApp(String appId, String name, String title, String contentType, String category, String artist, Date releaseDate, String imageUrl, String summary, double price, String currency) {
+    public TopFreeApp(String appId, String bundleId, String name, String title, String contentType, String category, String artist, Date releaseDate, String imageUrl, String summary, double price, String currency) {
+//    public TopFreeApp(String appId, String name, String title, String contentType, String category, String artist, Date releaseDate, String imageUrl, String summary, double price, String currency) {
         this.appId = appId;
+        this.bundleId = bundleId;
         this.name = name;
         this.title = title;
         this.contentType = contentType;

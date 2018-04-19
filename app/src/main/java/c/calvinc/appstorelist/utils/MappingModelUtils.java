@@ -21,6 +21,7 @@ public class MappingModelUtils {
     public static TopFreeApp toTopFreeAppDao(AppModel appModel) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ"); //2017-11-28T21:34:35-07:00
         String appId = appModel.idModel.attributes.id;
+        String bundleId = appModel.idModel.attributes.bundleId;
         String name = appModel.name.label;
         String title = appModel.title.label;
         String contentType = appModel.contentType.attributes.label;
@@ -43,12 +44,13 @@ public class MappingModelUtils {
             imageUrl = imageModel.label;
         }
         String summary = appModel.summary.label;
-        return new TopFreeApp(appId, name, title, contentType, category, artist, releaseDate, imageUrl, summary, dbPrice, currency);
+        return new TopFreeApp(appId, bundleId, name, title, contentType, category, artist, releaseDate, imageUrl, summary, dbPrice, currency);
     }
 
     public static TopGrossApp toTopGrossAppDao(AppModel appModel) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ"); //2017-11-28T21:34:35-07:00
         String appId = appModel.idModel.attributes.id;
+        String bundleId = appModel.idModel.attributes.bundleId;
         String name = appModel.name.label;
         String title = appModel.title.label;
         String contentType = appModel.contentType.attributes.label;
@@ -71,6 +73,6 @@ public class MappingModelUtils {
             imageUrl = imageModel.label;
         }
         String summary = appModel.summary.label;
-        return new TopGrossApp(appId, name, title, contentType, category, artist, releaseDate, imageUrl, summary, dbPrice, currency);
+        return new TopGrossApp(appId, bundleId, name, title, contentType, category, artist, releaseDate, imageUrl, summary, dbPrice, currency);
     }
 }
