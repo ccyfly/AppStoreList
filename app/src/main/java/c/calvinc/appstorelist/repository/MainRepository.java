@@ -4,14 +4,19 @@ import android.arch.lifecycle.MutableLiveData;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import c.calvinc.appstorelist.AppExecutors;
 import c.calvinc.appstorelist.db.AppDatabase;
+import c.calvinc.appstorelist.db.model.AppDetail;
 import c.calvinc.appstorelist.db.model.TopFreeApp;
+import c.calvinc.appstorelist.db.model.TopFreeAppDetail;
 import c.calvinc.appstorelist.db.model.TopGrossApp;
 import c.calvinc.appstorelist.networking.AppStoreListService;
+import c.calvinc.appstorelist.networking.model.AppDetailModel;
 import c.calvinc.appstorelist.networking.model.AppModel;
 import c.calvinc.appstorelist.networking.model.FeedModel;
+import c.calvinc.appstorelist.networking.response.AppLookUpResponse;
 import c.calvinc.appstorelist.networking.response.FeedResponse;
 import c.calvinc.appstorelist.utils.MappingModelUtils;
 import retrofit2.Call;
@@ -28,12 +33,15 @@ public class MainRepository {
 
     private int currentPage;
     private final int PAGE_SIZE = 10;
-    MutableLiveData<List<TopFreeApp>> topFreeAppData;
-    MutableLiveData<List<TopFreeApp>> deltaTopFreeAppData;
+    MutableLiveData<List<TopFreeAppDetail>> topFreeAppData;
+    MutableLiveData<List<TopFreeAppDetail>> deltaTopFreeAppData;
     MutableLiveData<List<TopGrossApp>> topGrossAppData;
 
     MutableLiveData<NetworkState> topFreeAppNetworkState;
     MutableLiveData<NetworkState> topGrossAppNetworkState;
+    MutableLiveData<NetworkState> appDetailNetworkState;
+
+//    private MutableLiveData<List<T>>
 
     private MainRepository(final AppDatabase database, final AppExecutors executors, final AppStoreListService service) {
         appDatabase = database;
@@ -44,6 +52,7 @@ public class MainRepository {
         topFreeAppData = new MutableLiveData<>();
         deltaTopFreeAppData = new MutableLiveData<>();
         topGrossAppNetworkState = new MutableLiveData<>();
+        appDetailNetworkState = new MutableLiveData<>();
         topGrossAppData = new MutableLiveData<>();
     }
 
@@ -58,10 +67,10 @@ public class MainRepository {
         return sInstance;
     }
 
-    public MutableLiveData<List<TopFreeApp>> getObservableTopFreeApp() {
+    public MutableLiveData<List<TopFreeAppDetail>> getObservableTopFreeApp() {
         return topFreeAppData;
     }
-    public MutableLiveData<List<TopFreeApp>> getObservableDeltaTopFreeApp() {
+    public MutableLiveData<List<TopFreeAppDetail>> getObservableDeltaTopFreeApp() {
         return deltaTopFreeAppData;
     }
     public MutableLiveData<NetworkState> getObservableTopFreeAppNetworkState() {
@@ -187,17 +196,18 @@ public class MainRepository {
                     data = appDatabase.topFreeAppDao().allTopFreeAppById(page * PAGE_SIZE, PAGE_SIZE);
                 }
                 final List<TopFreeApp> postData = data;
-                appExecutors.mainThread().execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (page == 0) {
-                            topFreeAppData.setValue(postData);
-                        } else {
-                            deltaTopFreeAppData.setValue(postData);
-                        }
-                    }
-                });
-
+                boolean isDelta = page != 0;
+                requestAppDetails(data, isDelta);
+//                appExecutors.mainThread().execute(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        if (page == 0) {
+//                            topFreeAppData.setValue(postData);
+//                        } else {
+//                            deltaTopFreeAppData.setValue(postData);
+//                        }
+//                    }
+//                });
             }
         });
     }
@@ -222,5 +232,99 @@ public class MainRepository {
 
             }
         });
+    }
+
+    private void requestAppDetails(final List<TopFreeApp> appList, final boolean isDelta) {
+        if (appList.size() > 0) {
+            appExecutors.mainThread().execute(new Runnable() {
+                @Override
+                public void run() {
+                    appDetailNetworkState.setValue(new NetworkState(Status.RUNNING, "Requesting"));
+                }
+            });
+
+            appExecutors.networkIO().execute(new Runnable() {
+                @Override
+                public void run() {
+                    CountDownLatch countDownLatch = new CountDownLatch(appList.size());
+                    for (TopFreeApp app : appList) {
+                        requestAppDetail(countDownLatch, app.appId);
+                    }
+                    try {
+                        countDownLatch.await();
+                        queryAppDetailList(appList, isDelta);
+
+                    } catch (Exception e) {
+
+                    }
+                }
+            });
+        }
+    }
+
+    private void queryAppDetailList(final List<TopFreeApp> appList, final boolean isDelta) {
+        appExecutors.diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                final List<TopFreeAppDetail> list = new ArrayList<>();
+                for (TopFreeApp app : appList) {
+                    TopFreeAppDetail detail = appDatabase.topFreeAppDao().getAppDetail(app.bundleId);
+                    list.add(detail);
+                }
+                appExecutors.mainThread().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        appDetailNetworkState.setValue(new NetworkState(Status.SUCCESS, "Success"));
+                        if (isDelta) {
+                            deltaTopFreeAppData.setValue(list);
+                        } else {
+                            topFreeAppData.setValue(list);
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    private void requestAppDetail(final CountDownLatch latch, String appId) {
+        Call<AppLookUpResponse> call = service.lookupApp(appId);
+        call.enqueue(new Callback<AppLookUpResponse>() {
+            @Override
+            public void onResponse(Call<AppLookUpResponse> call, Response<AppLookUpResponse> response) {
+                if (response.isSuccessful()) {
+                    final AppDetailModel model = response.body().results.get(0);
+                    appExecutors.diskIO().execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            AppDetail detail = MappingModelUtils.toAppDetailDao(model);
+                            appDatabase.topFreeAppDao().insertAppDetail(detail);
+                            latch.countDown();
+                        }
+                    });
+                } else {
+                    latch.countDown();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<AppLookUpResponse> call, Throwable t) {
+                latch.countDown();
+            }
+        });
+    }
+
+    private static class RequestAppDetailRunnable implements Runnable {
+        CountDownLatch latch;
+        String appId;
+
+        RequestAppDetailRunnable(CountDownLatch latch, String appId) {
+            this.latch = latch;
+            this.appId = appId;
+        }
+
+        @Override
+        public void run() {
+
+        }
     }
 }

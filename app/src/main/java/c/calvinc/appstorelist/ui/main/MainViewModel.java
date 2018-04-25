@@ -11,6 +11,7 @@ import java.util.List;
 
 import c.calvinc.appstorelist.MainApplication;
 import c.calvinc.appstorelist.db.model.TopFreeApp;
+import c.calvinc.appstorelist.db.model.TopFreeAppDetail;
 import c.calvinc.appstorelist.db.model.TopGrossApp;
 import c.calvinc.appstorelist.repository.NetworkState;
 import c.calvinc.appstorelist.repository.Status;
@@ -18,7 +19,7 @@ import c.calvinc.appstorelist.repository.Status;
 public class MainViewModel extends AndroidViewModel {
     private MutableLiveData<NetworkState> topFreeAppNetworkState;
     private MutableLiveData<NetworkState> topGrossAppNetworkState;
-    private MutableLiveData<List<TopFreeApp>> detraData;
+    private MutableLiveData<List<TopFreeAppDetail>> detraData;
     int currentPage = 0;
     String keyword = null;
     boolean listDataLoaded = false;
@@ -82,13 +83,13 @@ public class MainViewModel extends AndroidViewModel {
         }
     }
 
-    public MutableLiveData<List<TopFreeApp>> getObservableTopFreeApp() {
+    public MutableLiveData<List<TopFreeAppDetail>> getObservableTopFreeApp() {
         return ((MainApplication)getApplication()).getHomeRepository().getObservableTopFreeApp();
     }
 
     public MutableLiveData<NetworkState> getObservableNetworkState() { return liveDataMerger; }
 
-    public MutableLiveData<List<TopFreeApp>> getObservableDeltaTopTreeAppData() {
+    public MutableLiveData<List<TopFreeAppDetail>> getObservableDeltaTopTreeAppData() {
         return detraData;
     }
 

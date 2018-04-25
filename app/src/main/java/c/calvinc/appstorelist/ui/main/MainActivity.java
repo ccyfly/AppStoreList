@@ -26,6 +26,7 @@ import c.calvinc.appstorelist.R;
 import c.calvinc.appstorelist.adapters.TopFreeAppAdapter;
 import c.calvinc.appstorelist.databinding.ActivityMainBinding;
 import c.calvinc.appstorelist.db.model.TopFreeApp;
+import c.calvinc.appstorelist.db.model.TopFreeAppDetail;
 import c.calvinc.appstorelist.db.model.TopGrossApp;
 import c.calvinc.appstorelist.repository.NetworkState;
 import c.calvinc.appstorelist.repository.Status;
@@ -144,15 +145,15 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-        viewModel.getObservableTopFreeApp().observe(this, new Observer<List<TopFreeApp>>() {
+        viewModel.getObservableTopFreeApp().observe(this, new Observer<List<TopFreeAppDetail>>() {
             @Override
-            public void onChanged(@Nullable List<TopFreeApp> topFreeApps) {
+            public void onChanged(@Nullable List<TopFreeAppDetail> topFreeApps) {
                 initialTopFreeAppToListView(topFreeApps);
             }
         });
-        viewModel.getObservableDeltaTopTreeAppData().observe(this, new Observer<List<TopFreeApp>>() {
+        viewModel.getObservableDeltaTopTreeAppData().observe(this, new Observer<List<TopFreeAppDetail>>() {
             @Override
-            public void onChanged(@Nullable List<TopFreeApp> topFreeApps) {
+            public void onChanged(@Nullable List<TopFreeAppDetail> topFreeApps) {
                 addTopFreeAppToList(topFreeApps);
             }
         });
@@ -164,12 +165,12 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    void initialTopFreeAppToListView(List<TopFreeApp> topFreeApps) {
+    void initialTopFreeAppToListView(List<TopFreeAppDetail> topFreeApps) {
         topFreeAppAdapter.setList(topFreeApps);
         topFreeAppAdapter.setLoaded();
     }
 
-    void addTopFreeAppToList(List<TopFreeApp> deltaTopFreeApps) {
+    void addTopFreeAppToList(List<TopFreeAppDetail> deltaTopFreeApps) {
         topFreeAppAdapter.addList(deltaTopFreeApps);
         topFreeAppAdapter.setLoaded();
     }

@@ -24,7 +24,9 @@ import c.calvinc.appstorelist.R;
 import c.calvinc.appstorelist.databinding.LayoutEmptyviewBinding;
 import c.calvinc.appstorelist.databinding.LayoutHeaderBinding;
 import c.calvinc.appstorelist.databinding.ListitemAppBinding;
+import c.calvinc.appstorelist.db.model.AppDetail;
 import c.calvinc.appstorelist.db.model.TopFreeApp;
+import c.calvinc.appstorelist.db.model.TopFreeAppDetail;
 import c.calvinc.appstorelist.db.model.TopGrossApp;
 
 /**
@@ -36,10 +38,11 @@ public class TopFreeAppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private static final int VIEW_TYPE_HEADER = 0;
     private static final int VIEW_TYPE_ITEM = 1;
     private static final int VIEW_TYPE_LIST_EMPTY = 2;
+    private static final int VIEW_TYPE_LOADING_VIEW = 3;
 
     private Context context;
     List<TopGrossApp> headerList;
-    List<TopFreeApp> list;
+    List<TopFreeAppDetail> list;
 
     private int lastPosition = -1;
     private boolean isAnimate;
@@ -87,7 +90,7 @@ public class TopFreeAppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         this.onLoadMoreListener = listener;
     }
 
-    public void setList(List<TopFreeApp> list) {
+    public void setList(List<TopFreeAppDetail> list) {
         int lastPosition = -1;
         this.list = list;
         this.notifyDataSetChanged();
@@ -98,7 +101,7 @@ public class TopFreeAppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         this.notifyItemChanged(0);
     }
 
-    public void addList(List<TopFreeApp> addList) {
+    public void addList(List<TopFreeAppDetail> addList) {
         int currentPos = this.list.size() - 1;
         this.list.addAll(addList);
         if (currentPos >= 0) {
@@ -128,7 +131,12 @@ public class TopFreeAppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             if (showListEmptyView()) {
                 return VIEW_TYPE_LIST_EMPTY;
             } else {
-                return VIEW_TYPE_ITEM;
+                int realListItemPosition = position - 1;
+                if (list != null && realListItemPosition < list.size()) {
+                    return VIEW_TYPE_ITEM;
+                } else {
+                    return VIEW_TYPE_LOADING_VIEW;
+                }
             }
         }
     }
@@ -147,6 +155,9 @@ public class TopFreeAppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             case VIEW_TYPE_LIST_EMPTY:
                 LayoutEmptyviewBinding emptyViewBinding = DataBindingUtil.inflate(layoutInflater, R.layout.layout_emptyview, parent, false);
                 return new EmptyViewHolder(emptyViewBinding);
+            case VIEW_TYPE_LOADING_VIEW:
+                View view = layoutInflater.inflate(R.layout.listitem_loadmore, parent, false);
+                return new LoadingViewHolder(view);
             case VIEW_TYPE_ITEM:
             default:
                 ListitemAppBinding itemBinding = DataBindingUtil.inflate(layoutInflater, R.layout.listitem_app, parent, false);
@@ -159,7 +170,7 @@ public class TopFreeAppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         if (holder instanceof AppItemViewHolder) {
             int appPosition = position - 1;
             if (appPosition > -1) {
-                TopFreeApp app = getItem(appPosition);
+                TopFreeAppDetail app = getItem(appPosition);
                 if (app != null) {
                     ((AppItemViewHolder)holder).bindData(appPosition, app);
                     animateItem(position, holder.itemView);
@@ -174,14 +185,14 @@ public class TopFreeAppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     @Override
     public int getItemCount() {
-        return (list!=null ? list.size() : 0) + 1 + (showListEmptyView() ? 1 : 0);
+        return (list!=null ? list.size() : 0) + 1 + (showListEmptyView() ? 1 : 0) + (isLoading ? 1 : 0);
     }
 
     private boolean showListEmptyView() {
         return list != null && list.isEmpty();
     }
 
-    TopFreeApp getItem(int position) {
+    TopFreeAppDetail getItem(int position) {
         if (list.size() > position) {
             return list.get(position);
         } else {
@@ -218,10 +229,15 @@ public class TopFreeAppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             this.binding = binding;
         }
 
-        void bindData(int position, TopFreeApp item) {
+        void bindData(int position, TopFreeAppDetail topItem) {
+            TopFreeApp item = topItem.topFreeApp;
+            AppDetail detail = topItem.details;
             this.binding.txtAppName.setText(item.name);
             this.binding.txtPosition.setText(String.valueOf(position+1));
             this.binding.txtCat.setText(item.category);
+            android.support.v7.widget.AppCompatRatingBar ratingBar = this.binding.getRoot().findViewById(R.id.rateBar);
+            ratingBar.setRating((float)detail.averageUserRating);
+            this.binding.numberUserRated.setText("("+detail.userRatingCount+")");
             SimpleDraweeView imgIcon = (SimpleDraweeView)this.binding.getRoot().findViewById(R.id.imgIcon);
 
 //            this.binding.imgIcon.setImageUri(Uri.parse(item.imageUrl));
@@ -279,6 +295,13 @@ public class TopFreeAppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         public EmptyViewHolder(LayoutEmptyviewBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
+        }
+    }
+
+    public static class LoadingViewHolder extends RecyclerView.ViewHolder {
+
+        public LoadingViewHolder(View view) {
+            super(view);
         }
     }
 }

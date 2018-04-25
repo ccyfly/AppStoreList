@@ -1,7 +1,9 @@
 package c.calvinc.appstorelist.db.model;
 
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.NonNull;
 
 import java.util.Date;
 
@@ -11,6 +13,8 @@ public class TopFreeApp {
     public int id;
 
     public String appId;
+
+    @ForeignKey(entity = AppDetail.class, parentColumns = "bundleId", childColumns = "detailBundleId")
     public String bundleId;
 
     public String name;

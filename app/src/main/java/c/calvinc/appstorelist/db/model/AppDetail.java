@@ -13,9 +13,15 @@ import android.support.annotation.NonNull;
 public class AppDetail {
     @PrimaryKey
     @NonNull
-    public String bundleId;
+    public String detailBundleId;
 
     public double averageUserRating;
 
     public int userRatingCount;
+
+    public AppDetail(String detailBundleId, double averageUserRating, int userRatingCount) {
+        this.detailBundleId = detailBundleId;
+        this.averageUserRating = averageUserRating;
+        this.userRatingCount = userRatingCount;
+    }
 }

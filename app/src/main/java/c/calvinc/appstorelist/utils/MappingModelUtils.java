@@ -6,8 +6,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import c.calvinc.appstorelist.db.model.AppDetail;
 import c.calvinc.appstorelist.db.model.TopFreeApp;
 import c.calvinc.appstorelist.db.model.TopGrossApp;
+import c.calvinc.appstorelist.networking.model.AppDetailModel;
 import c.calvinc.appstorelist.networking.model.AppModel;
 import c.calvinc.appstorelist.networking.model.ImageModel;
 
@@ -74,5 +76,9 @@ public class MappingModelUtils {
         }
         String summary = appModel.summary.label;
         return new TopGrossApp(appId, bundleId, name, title, contentType, category, artist, releaseDate, imageUrl, summary, dbPrice, currency);
+    }
+
+    public static AppDetail toAppDetailDao(AppDetailModel appDetailModel) {
+        return new AppDetail(appDetailModel.bundleId, appDetailModel.averageUserRating, appDetailModel.userRatingCount);
     }
 }

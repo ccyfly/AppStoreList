@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "54fd1cd15237b8f7ba17dbfe003c599d",
+    "identityHash": "d35c1603df6683d2e538fad3a18eb4f4",
     "entities": [
       {
         "tableName": "top_free_app",
@@ -190,11 +190,11 @@
       },
       {
         "tableName": "app_detail",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`bundleId` TEXT NOT NULL, `averageUserRating` REAL NOT NULL, `userRatingCount` INTEGER NOT NULL, PRIMARY KEY(`bundleId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`detailBundleId` TEXT NOT NULL, `averageUserRating` REAL NOT NULL, `userRatingCount` INTEGER NOT NULL, PRIMARY KEY(`detailBundleId`))",
         "fields": [
           {
-            "fieldPath": "bundleId",
-            "columnName": "bundleId",
+            "fieldPath": "detailBundleId",
+            "columnName": "detailBundleId",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -213,7 +213,7 @@
         ],
         "primaryKey": {
           "columnNames": [
-            "bundleId"
+            "detailBundleId"
           ],
           "autoGenerate": false
         },
@@ -223,7 +223,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"54fd1cd15237b8f7ba17dbfe003c599d\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"d35c1603df6683d2e538fad3a18eb4f4\")"
     ]
   }
 }

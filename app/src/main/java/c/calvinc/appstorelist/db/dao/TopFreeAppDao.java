@@ -11,7 +11,9 @@ import android.arch.persistence.room.Query;
 
 import java.util.List;
 
+import c.calvinc.appstorelist.db.model.AppDetail;
 import c.calvinc.appstorelist.db.model.TopFreeApp;
+import c.calvinc.appstorelist.db.model.TopFreeAppDetail;
 import c.calvinc.appstorelist.db.model.TopGrossApp;
 
 @Dao
@@ -39,4 +41,10 @@ public interface TopFreeAppDao {
 
     @Query("DELETE FROM top_gross_app")
     public abstract void deleteAllTopGrossApps();
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    public abstract void insertAppDetail(AppDetail detail);
+
+    @Query("SELECT top_free_app.*, app_detail.* FROM top_free_app INNER JOIN app_detail ON top_free_app.bundleId = app_detail.detailBundleId WHERE top_free_app.bundleId = :bundleId")
+    public abstract TopFreeAppDetail getAppDetail(String bundleId);
 }

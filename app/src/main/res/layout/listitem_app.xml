@@ -4,6 +4,7 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:minHeight="80dp"
         android:padding="8dp"
         android:orientation="horizontal">
         <LinearLayout
@@ -43,6 +44,26 @@
                 android:textSize="14sp"
                 android:textColor="@color/textColorGrey"
                 android:layout_marginTop="8dp"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+                <android.support.v7.widget.AppCompatRatingBar
+                    android:id="@+id/rateBar"
+                    style="@style/Widget.AppCompat.RatingBar.Small"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:stepSize="0.5"
+                    android:rating="0"
+                    android:numStars="5"
+                    />
+                <TextView
+                    android:id="@+id/numberUserRated"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    />
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 </layout>
