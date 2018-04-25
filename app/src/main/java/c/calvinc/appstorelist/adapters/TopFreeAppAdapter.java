@@ -80,10 +80,15 @@ public class TopFreeAppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                                     onLoadMoreListener.onLoadMore();
                                 }
                                 isLoading = true;
+                                showLoading();
                             }
                         }
                     });
         }
+    }
+
+    private void showLoading() {
+        this.notifyDataSetChanged();
     }
 
     public void setOnLoadMoreListener(OnLoadMoreListener listener) {
@@ -102,10 +107,17 @@ public class TopFreeAppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     public void addList(List<TopFreeAppDetail> addList) {
-        int currentPos = this.list.size() - 1;
-        this.list.addAll(addList);
-        if (currentPos >= 0) {
-            this.notifyItemRangeInserted(currentPos + 1, addList.size());
+        setLoaded();
+        if (addList.size() > 0) {
+            int currentListSize = getItemCount();
+            int currentPos = this.list.size() + 1;
+            int numOfAdd = addList.size();
+            this.list.addAll(addList);
+            if (currentPos >= 0) {
+                this.notifyItemRangeInserted(currentListSize, numOfAdd - 1);
+            }
+        } else {
+            this.notifyDataSetChanged();
         }
     }
 

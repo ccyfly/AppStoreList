@@ -253,9 +253,20 @@ public class MainRepository {
                     try {
                         countDownLatch.await();
                         queryAppDetailList(appList, isDelta);
-
                     } catch (Exception e) {
 
+                    }
+                }
+            });
+        } else {
+            appExecutors.mainThread().execute(new Runnable() {
+                @Override
+                public void run() {
+                    appDetailNetworkState.setValue(new NetworkState(Status.SUCCESS, "Success"));
+                    if (isDelta) {
+                        deltaTopFreeAppData.setValue(new ArrayList<TopFreeAppDetail>());
+                    } else {
+                        topFreeAppData.setValue(new ArrayList<TopFreeAppDetail>());
                     }
                 }
             });

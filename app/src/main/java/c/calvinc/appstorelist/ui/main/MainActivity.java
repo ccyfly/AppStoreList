@@ -172,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
 
     void addTopFreeAppToList(List<TopFreeAppDetail> deltaTopFreeApps) {
         topFreeAppAdapter.addList(deltaTopFreeApps);
-        topFreeAppAdapter.setLoaded();
+//        topFreeAppAdapter.setLoaded();
     }
 
     void initialTopGrossAppToListView(List<TopGrossApp> topGrossApps) {
