@@ -1,13 +1,15 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
     defaultConfig {
         applicationId "c.calvinc.appstorelist"
-        minSdkVersion 22
-        targetSdkVersion 27
-        versionCode 1
-        versionName "1.0"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 3
+        versionName "1.1"
+        multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         javaCompileOptions {
@@ -26,12 +28,32 @@ android {
     dataBinding {
         enabled = true
     }
-    buildToolsVersion '27.0.3'
+    applicationVariants.all { variant ->
+//        variant.outputs.each { output ->
+//            def fileName = rootProject.ext.applicationName + "-${variant.buildType.name}-${variant.flavorName}-v${variant.versionName}(build${variant.versionCode}).apk"
+//            output.outputFile = new File(output.outputFile.parent, fileName)
+//        }
+        variant.outputs.all {
+            outputFileName = rootProject.ext.applicationName + "-${variant.buildType.name}-${variant.flavorName}-v${variant.versionName}(build${variant.versionCode}).apk"
+        }
+    }
+}
+
+configurations.all {
+    resolutionStrategy {
+        force 'com.android.support:design:' + rootProject.ext.supportLibraryVersion
+        force 'com.android.support:support-v4:' + rootProject.ext.supportLibraryVersion
+        force 'com.android.support:appcompat-v7:' + rootProject.ext.supportLibraryVersion
+        force 'com.android.support:support-annotations:' + rootProject.ext.supportLibraryVersion
+        force 'com.android.support:cardview-v7:' + rootProject.ext.supportLibraryVersion
+        force 'com.android.support:customtabs:' + rootProject.ext.supportLibraryVersion
+        force 'com.android.support:support-compat:' + rootProject.ext.supportLibraryVersion
+    }
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'com.android.support:appcompat-v7:' + rootProject.ext.supportLibraryVersion
     // ViewModel and LiveData
     implementation 'android.arch.lifecycle:extensions:1.1.1'
     // alternatively, just ViewModel
@@ -43,7 +65,7 @@ dependencies {
     implementation 'android.arch.persistence.room:runtime:1.0.0'
     annotationProcessor "android.arch.persistence.room:compiler:1.0.0"
     // Paging
-    implementation 'android.arch.paging:runtime:1.0.0-beta1'
+    implementation 'android.arch.paging:runtime:1.0.0-rc1'
     // Test helpers for LiveData
     testImplementation 'android.arch.core:core-testing:1.1.1'
     // Test helpers for Room
@@ -56,4 +78,32 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+}
+//versionnumberautoincrement
+import java.util.regex.Pattern
+
+//task('increaseVersionCode') << {
+//    def manifestFile = file("src/main/AndroidManifest.xml")
+//    def pattern = Pattern.implementation("versionCode=\"(\\d+)\"")
+//    def manifestText = manifestFile.getText()
+//    def matcher = pattern.matcher(manifestText)
+//    matcher.find()
+//    def versionCode = Integer.parseInt(matcher.group(1))
+//    def manifestContent = matcher.replaceAll("versionCode=\"" + ++versionCode + "\"")
+//    manifestFile.write(manifestContent)
+//}
+task('increaseVersionCode') << {
+    def manifestFile = file("build.gradle")
+    def manifestText = manifestFile.getText()
+    def matcher = Pattern.compile("versionCode (\\d+)").matcher(manifestText)
+    matcher.find()
+    def versionCode = Integer.parseInt(matcher.group(1))
+    def manifestContent = matcher.replaceAll("versionCode " + ++
+            versionCode)
+    manifestFile.write(manifestContent)
+}
+tasks.whenTaskAdded { task ->
+    if (task.name.contains('ReleaseBuildConfig')) {
+        task.dependsOn 'increaseVersionCode'
+    }
 }

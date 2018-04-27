@@ -26,3 +26,16 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+ext {
+    applicationName = "appstorelist"
+    compileSdkVersion = 27
+    buildToolsVersion = "27.0.3"
+    minSdkVersion = 22
+    targetSdkVersion = 27
+
+    supportLibraryVersion = "27.1.1"
+
+    junitVersion = "4.12"
+    zxingCore = "com.google.zxing:core:3.2.1"
+}
