@@ -78,6 +78,10 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+
+    implementation 'com.google.firebase:firebase-core:15.0.2'
+    implementation 'com.google.firebase:firebase-messaging:15.0.2'
+    implementation 'com.firebase:firebase-jobdispatcher:0.8.5'
 }
 //versionnumberautoincrement
 import java.util.regex.Pattern
@@ -107,3 +111,5 @@ tasks.whenTaskAdded { task ->
         task.dependsOn 'increaseVersionCode'
     }
 }
+
+apply plugin: 'com.google.gms.google-services'

@@ -44,6 +44,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (getIntent().getExtras() != null) {
+            for (String key : getIntent().getExtras().keySet()) {
+                String value = getIntent().getExtras().getString(key);
+                Log.d(MainActivity.class.getSimpleName(), "data Key: " + key + " Value: " + value);
+            }
+        }
+
         String keyword = null;
         if (savedInstanceState != null) {
             keyword = savedInstanceState.getString(STATE_KEYWORD);
